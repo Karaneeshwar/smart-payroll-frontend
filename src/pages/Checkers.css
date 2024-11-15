@@ -1,0 +1,17 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    width: inherit;
+    justify-content: center;
+    align-content: space-around;
+}
+
+.box {
+    margin: 50px 100px 50px 100px;
+    padding: 10px;
+    border-radius: 25px;
+}
+
+ion-button {
+    width: 100%;
+}
