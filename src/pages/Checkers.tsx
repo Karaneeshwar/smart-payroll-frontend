@@ -3,7 +3,7 @@ import { useState, CSSProperties } from "react";
 import { BarLoader } from "react-spinners"; 
 import * as faceapi from 'face-api.js'
 import "@tensorflow/tfjs"
-import { IonIcon, IonButton, IonPage, IonHeader, IonTitle, IonContent, IonToolbar, IonBadge, IonCard, IonCardTitle, IonCardContent, IonBackdrop, IonCardHeader, IonFabButton, IonBreadcrumb, IonButtons, IonMenuButton, IonAlert } from "@ionic/react";
+import { IonIcon, IonButton, IonPage, IonHeader, IonTitle, IonContent, IonToolbar, IonCard, IonCardTitle, IonCardContent, IonCardHeader, IonButtons, IonMenuButton } from "@ionic/react";
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import './Checkers.css'
 import '@ionic/react/css/core.css';
