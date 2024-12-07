@@ -24,12 +24,6 @@ interface AppPage {
 
 const appPages: AppPage[] = [
   {
-    title: 'Profile',
-    url: '/folder/Profile',
-    iosIcon: informationCircleOutline,
-    mdIcon: informationCircleSharp
-  },
-  {
     title: 'Get Attendance',
     url: '/Checkers',
     iosIcon: checkmarkDoneCircleOutline,
@@ -39,7 +33,11 @@ const appPages: AppPage[] = [
 
 const labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
 
-const Menu: React.FC = () => {
+interface q {
+  setIsLogin: React.Dispatch<React.SetStateAction<boolean>>  
+};
+
+const Menu: React.FC<q> = ({setIsLogin}) => {
   const location = useLocation();
 
   return (
@@ -61,7 +59,7 @@ const Menu: React.FC = () => {
         </IonList>
       </IonContent>
       <IonList><IonItem></IonItem></IonList>
-      <IonItem routerLink='/Home'>
+      <IonItem onClick={()=>{setIsLogin(false)}}>
         <IonIcon aria-hidden="true" slot="start" md={logOutSharp} ios={logOutOutline} />
         <IonLabel>Logout</IonLabel>
       </IonItem>

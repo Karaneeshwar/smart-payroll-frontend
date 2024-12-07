@@ -18,6 +18,7 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 import '@ionic/react/css/palettes/dark.system.css';
 import CheckLocation from "./loc";
+import axios from "axios";
 
 const override: CSSProperties = {
     display: "block",
@@ -127,6 +128,12 @@ function deFaceChecker(){
     const [imgSrc, setImgSrc] = useState<string>("");
     const [res, setRes] = useState<string>("");
     const [res2, setRes2] = useState<string>("");
+    let retry;
+    if (!(res=="/tick.svg" && res2==res)&&(res!=""&&res2!="")){
+        retry = <IonButton onClick={()=>{setImgSrc("");setRes("");setRes2("");}} >Try again</IonButton>;
+    } else {
+        retry = <IonButton disabled={!(res=="/tick.svg" && res2==res)}>Get Attendance</IonButton>;
+    }
     return (
         <IonPage itemID="cam">
             <IonHeader>
@@ -144,7 +151,7 @@ function deFaceChecker(){
                         <IonCardHeader><IonCardTitle>Step 1: <br/>Face Capture</IonCardTitle></IonCardHeader>
                         <IonCardContent>
                             <IonToolbar>
-                                { (imgSrc)?<IonIcon src="/tick.svg" size="large"></IonIcon>:(<CaptureFace onCap = {(s)=>setImgSrc(s)} />) }
+                                { (imgSrc)?<IonIcon src="/tick.svg" size="large" />:<CaptureFace onCap = {(s)=>setImgSrc(s)} /> }
                             </IonToolbar>
                         </IonCardContent>
                     </IonCard>
@@ -169,10 +176,12 @@ function deFaceChecker(){
                         </IonCardContent>
                     </IonCard>
                 </div>
-                <IonButton disabled={!(res=="/tick.svg" && res2==res)}>Get Attendance</IonButton>
+                {retry}
+                
             </div>
             </IonContent>
         </IonPage>
     );
 }
 export default deFaceChecker;
+//

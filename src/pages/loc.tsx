@@ -18,8 +18,12 @@ const getLoc = async():Promise<Position["coords"]> => {
     }); 
     return pos.coords;
 }
+interface q {
+    lattitude: number,
+    longitude: number
+};
 
-async function saveJson(loc:Position["coords"]){
+export async function saveJson(loc:Position["coords"]){
     const obj={
         location: JSON.stringify(loc)
     };
@@ -32,6 +36,8 @@ async function saveJson(loc:Position["coords"]){
         encoding: Encoding.UTF8
     });
     console.log("Fnished saving...");
+    const fp = await Filesystem.getUri({ path:"Location.json" , directory:Directory.Data});
+    console.log(fp.uri);
 }
 
 interface p {
@@ -54,7 +60,7 @@ const CheckLocation: React.FC<p> = ({onVer}) => {
             const curloc = await getLoc();
             console.log(curloc);
             console.log(locObj);
-            if (curloc.latitude==locObj.latitude && curloc.longitude==locObj.longitude){
+            if (Math.abs(curloc.latitude-locObj.latitude)<0.009 && Math.abs(curloc.longitude-locObj.longitude)<0.009){
                 console.log("true");
                 onVer("/tick.svg");
             } else {

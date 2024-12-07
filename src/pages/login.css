@@ -1,0 +1,30 @@
+.input {
+    margin: 10px;
+    padding-top: 1px;
+    padding-bottom: 25px;
+    padding-left: 30x;
+    padding-right: 30px;
+    border-radius: 15px;
+    /*border: 2px black solid;*/
+}
+
+.label {
+    font-weight: bolder;
+    font-size: 17px;
+    color: white;
+}
+
+/* Add this CSS */
+form {
+    width: 85%;
+    max-width: 400px; /* Optional: To limit the width on larger screens */
+    margin: 0 auto; /* Horizontally center */
+    position: absolute; /* For vertical centering */
+    top: 50%; /* Start from 50% of the viewport height */
+    left: 50%; /* Start from 50% of the viewport width */
+    transform: translate(-50%, -50%); /* Adjust to perfectly center */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: For a slight shadow effect */
+    padding: 20px; /* Optional: Add padding for better appearance */
+    background-color: #fff; /* Optional: Background color for the form */
+    border-radius: 20px; /* Optional: Rounded corners */
+}

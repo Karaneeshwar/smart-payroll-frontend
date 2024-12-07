@@ -34,30 +34,27 @@ import '@ionic/react/css/palettes/dark.system.css';
 /* Theme variables */
 //import './theme/variables.css';
 import FaceChecker from './pages/Checkers';
+import Login from './pages/login';
+import { useState } from 'react';
 //import checkLocation from './pages/loc';
 
 setupIonicReact();
 
 const App: React.FC = () => {
+  const [isLoggedin, setIsLoggedin] = useState(false);
   return (
     <IonApp>
       <IonReactRouter>
+        {(!isLoggedin)?<Login setIsLogin={setIsLoggedin}/>:
         <IonSplitPane contentId="main">
-        <Menu />
+        <Menu setIsLogin={setIsLoggedin}/>
           <IonRouterOutlet id="main">
-            <Route path="/" exact={true}>
-              <Redirect to="/folder/Profile" />
-            </Route>
-            <Route path="/folder/:name" exact={true}>
-              <Page />
-            </Route>
              <Route exact path="/Checkers">
              <FaceChecker/>
              </Route>
              <Redirect exact from="/" to="/Checkers" />
           </IonRouterOutlet>
-         
-        </IonSplitPane>
+        </IonSplitPane>}
       </IonReactRouter>
     </IonApp>
   );
