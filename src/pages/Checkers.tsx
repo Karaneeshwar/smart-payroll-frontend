@@ -1,5 +1,5 @@
 import { Camera, CameraResultType, CameraSource } from "@capacitor/camera"
-import { useState, CSSProperties } from "react";
+import { useState, CSSProperties, SetStateAction, MouseEventHandler } from "react";
 import { BarLoader } from "react-spinners"; 
 import * as faceapi from 'face-api.js'
 import "@tensorflow/tfjs"
@@ -18,6 +18,7 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 import '@ionic/react/css/palettes/dark.system.css';
 import CheckLocation from "./loc";
+import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import axios from "axios";
 
 const override: CSSProperties = {
@@ -26,20 +27,38 @@ const override: CSSProperties = {
     borderColor: "red",
   };
 
-const img = document.createElement('img');
+async function getRefFace(){
+    const imgdata = await Filesystem.readFile({path:'refimg.jpg', directory:Directory.Library});
+    if (imgdata.data instanceof Blob){
+        return URL.createObjectURL(imgdata.data);
+    } else {
+        const binStr = atob(imgdata.data);
+        const binArr = new Uint8Array(binStr.length);
+        for (let i=0; i<binStr.length; i++){
+            binArr[i] = binStr.charCodeAt(i);
+        }
+        const blob = new Blob([binArr.buffer], {type: 'image/*'});
+        return URL.createObjectURL(blob);
+    }
+}
+
 
 async function loadFaceChecker(){
+    const img2 = document.createElement('img');
     await Promise.all([
         faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
         faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
-        faceapi.nets.ssdMobilenetv1.loadFromUri('/models')
+        faceapi.nets.ssdMobilenetv1.loadFromUri('/models'),
+        img2.src = await getRefFace()
     ]);
-    const image = await faceapi.fetchImage('/refimg.jpg');
+
     const refdes = await faceapi
-        .detectSingleFace(image)
+        .detectSingleFace(img2)
         .withFaceLandmarks()
         .withFaceDescriptor()
+    
     const fm = new faceapi.FaceMatcher(refdes)
+    
     return async function checkFace(image:HTMLImageElement) {
         try {
             console.log("facecheck accessed");
@@ -67,6 +86,9 @@ async function loadFaceChecker(){
     };
 }
 
+
+
+
 interface p {
     onCap: (i: string) => void;
 }
@@ -81,10 +103,8 @@ const CaptureFace: React.FC<p> = ({ onCap }) => {
             source: CameraSource.Camera
         });
         if (!image.dataUrl) throw new Error("Camera Failure!!!");
-        img.src = image.dataUrl;
-        onCap(img.src);
+        onCap(image.dataUrl);
     };
-
     return (
         <IonButton onClick={getFace}>Take a Selfie</IonButton>
     );
@@ -92,14 +112,17 @@ const CaptureFace: React.FC<p> = ({ onCap }) => {
 
 interface q {
     onVer: (i: string) => void;
+    imgSrc: string
 }
 
-const VerifyFace: React.FC<q> =  ({ onVer }) => {
+const VerifyFace: React.FC<q> =  ({ onVer, imgSrc }) => {
+    const img = document.createElement('img');
     const [loading, setLoading] = useState(0);
     const verfiyFace = async () => {
         setLoading(loading + 1);
         const checkFace = await loadFaceChecker();
         setLoading(loading + 1);
+        img.src = imgSrc;
         const res = await checkFace(img);
         setLoading(0);
         if (res){
@@ -120,20 +143,60 @@ const VerifyFace: React.FC<q> =  ({ onVer }) => {
         );
     }
     return (
-        <IonButton disabled={!img.src} onClick={verfiyFace}>Verify Face</IonButton>
+        <IonButton disabled={!imgSrc} onClick={verfiyFace}>Verify Face</IonButton>
     );
 };
 
+interface r {
+    onPres:React.Dispatch<SetStateAction<boolean>>
+};
+
+const GetAttendance:React.MouseEventHandler<r> = (onPres) => {
+    
+};
+
+
 function deFaceChecker(){
+    const [isPres, setIsPres] = useState(false);
     const [imgSrc, setImgSrc] = useState<string>("");
     const [res, setRes] = useState<string>("");
     const [res2, setRes2] = useState<string>("");
+
+    const getAttendance = async () => {
+        const fr = await Filesystem.readFile({
+            path:'Location.json',
+            directory: Directory.Data,
+            encoding: Encoding.UTF8
+        });
+        if (typeof fr.data === 'string') {
+            const locObj = JSON.parse(JSON.parse(fr.data).location);
+            console.log(locObj);
+            console.log(locObj.id);
+            try {
+                const res = await axios.get("http://localhost:3000/putAttendance", {
+                    params: {
+                        id:locObj.id
+                    }
+                });
+                if ('Yes'===res.data){
+                    setIsPres(true);
+                } else {
+                    setRes("/cross.svg");
+                }
+                console.log(res.data);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    };
+
     let retry;
     if (!(res=="/tick.svg" && res2==res)&&(res!=""&&res2!="")){
         retry = <IonButton onClick={()=>{setImgSrc("");setRes("");setRes2("");}} >Try again</IonButton>;
     } else {
-        retry = <IonButton disabled={!(res=="/tick.svg" && res2==res)}>Get Attendance</IonButton>;
+        retry = <IonButton disabled={!(res=="/tick.svg" && res2==res)} onClick={getAttendance}>Get Attendance</IonButton>;
     }
+
     return (
         <IonPage itemID="cam">
             <IonHeader>
@@ -145,6 +208,7 @@ function deFaceChecker(){
                 </IonToolbar>
             </IonHeader>
             <IonContent>
+                {(!isPres)?(
             <div className="container">
                 <div className="container">
                     <IonCard className="box">
@@ -161,7 +225,7 @@ function deFaceChecker(){
                         <IonCardHeader><IonCardTitle>Step 2: <br/>Face Verification</IonCardTitle></IonCardHeader>
                         <IonCardContent>
                             <IonToolbar>
-                                { (res)?<IonIcon src={res} size="large"></IonIcon>:<VerifyFace onVer = {(s) => setRes(s) } /> }
+                                { (res)?<IonIcon src={res} size="large"></IonIcon>:<VerifyFace onVer = {(s) => setRes(s) } imgSrc = {imgSrc} /> }
                             </IonToolbar>
                         </IonCardContent>
                     </IonCard>
@@ -178,7 +242,12 @@ function deFaceChecker(){
                 </div>
                 {retry}
                 
-            </div>
+            </div>):(
+            <div itemID="res">
+                <IonIcon src="/tick.svg" size="large"></IonIcon>
+                <h1>Attendance updated</h1>
+            </div>            
+        )}
             </IonContent>
         </IonPage>
     );

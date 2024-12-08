@@ -15,9 +15,8 @@ import '@ionic/react/css/display.css';
 import '@ionic/react/css/palettes/dark.system.css';
 import axios from "axios";
 import './login.css';
-import { render } from "@testing-library/react";
-import { todaySharp } from "ionicons/icons";
-
+import { Filesystem, Directory, Encoding } from "@capacitor/filesystem"
+import { saveJson } from "./loc";
 
 interface q {
     setIsLogin: React.Dispatch<React.SetStateAction<boolean>>
@@ -29,13 +28,39 @@ const Login: React.FC<q> = ({ setIsLogin }) => {
 
     const submitForm:React.FormEventHandler<HTMLFormElement> = async (event) => {
         event.preventDefault();
+        console.log(form.userid);
+        console.log(form.userid.slice(3));
         try {
-            const res = await axios.get("http://localhost:3000/users/login", {params:{id:form.userid, pwd:form.pwd}});
+            const res = await axios.get("http://localhost:3000/users/login", {
+                params: {
+                    id: form.userid.slice(3), 
+                    pwd: form.pwd
+                }
+            });
             console.log("Works:"+res.data);
             if (res.data==="Yes"){
                 console.log("Password correct");
-                const imgRes = await axios.get("http://localhost:3000/users/img", { responseType: 'blob', params:{id:form.userid} });
-                saveImage(img);
+                const imgRes = await axios.get("http://localhost:3000/users/img", { 
+                    responseType: 'arraybuffer', 
+                    params: {
+                        id:form.userid.slice(3)
+                    } 
+                });
+                const data64 = btoa(new Uint8Array(imgRes.data).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+                const fwres = await Filesystem.writeFile({
+                    path: "refimg.jpg",
+                    directory: Directory.Library,
+                    data: data64
+                });
+                console.log("File write results: "+fwres.uri);
+                const locRes = await axios.get("http://localhost:3000/getloc", {
+                    params: {
+                        loc: form.userid.slice(0,3)
+                    }
+                });
+                const loc = JSON.parse(locRes.data);
+                loc['id'] = form.userid.slice(3);
+                saveJson(loc);
                 setIsLogin(true);
             } else {
                 console.log("Password is wrong");
@@ -68,7 +93,7 @@ const Login: React.FC<q> = ({ setIsLogin }) => {
                                 name="userid" 
                                 itemID="id"
                                 onIonChange={(event)=>{
-                                    setForm({...form, [event.target.name]:[event.target.value]});
+                                    setForm({...form, [event.target.name]:event.target.value});
                                     console.log(form);
                                 }}
                                 required
@@ -83,7 +108,7 @@ const Login: React.FC<q> = ({ setIsLogin }) => {
                                 name="pwd" 
                                 itemID="pwd" 
                                 onIonChange={(event)=>{
-                                    setForm({...form, [event.target.name]:[event.target.value]});
+                                    setForm({...form, [event.target.name]:event.target.value});
                                     console.log(form);
                                 }}
                                 required

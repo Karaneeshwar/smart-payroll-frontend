@@ -2,28 +2,47 @@ import { Geolocation, Position } from "@capacitor/geolocation";
 import { Filesystem, Directory, Encoding } from "@capacitor/filesystem"
 import { IonButton } from "@ionic/react";
 import "@tensorflow/tfjs-core";
+import axios from 'axios';
 
-let loc;
+/*let loc, locObj = {
+    lattitude: 0.0,
+    longitude: 0.0
+};
+let res;
 const loader = async () => {
-    Promise.all([
-        loc = await Geolocation.getCurrentPosition(),
-        console.log(loc),
-        saveJson(loc.coords)
-    ]);    
-}
-
+    try {
+        await Promise.all([
+            loc = await Geolocation.getCurrentPosition(),
+            console.log(loc),
+            locObj['latitude'] = loc.coords.latitude,
+            locObj['longitude'] = loc.coords.longitude,
+            res = await axios.get('http://localhost:3000/saveloc', {
+                params: {
+                    loc: JSON.stringify(locObj)
+                }
+            }),
+            saveJson(locObj),
+            console.log(res.data.message)
+        ]);    
+    } catch (err) {
+        console.log(err.message);
+    }
+};
+*/
 const getLoc = async():Promise<Position["coords"]> => {
     const pos = await Geolocation.getCurrentPosition({
         timeout: 10000
     }); 
     return pos.coords;
 }
+
 interface q {
+    id: string,
     lattitude: number,
     longitude: number
 };
 
-export async function saveJson(loc:Position["coords"]){
+export async function saveJson(loc:q){
     const obj={
         location: JSON.stringify(loc)
     };
@@ -47,7 +66,7 @@ interface p {
 const CheckLocation: React.FC<p> = ({onVer}) => {
 
     const verifyLocation = async () => {
-        await loader();
+        //await loader();
         console.log("Reading");
         const str = await Filesystem.readFile({
             path: "Location.json",
@@ -58,9 +77,9 @@ const CheckLocation: React.FC<p> = ({onVer}) => {
             const locObj = JSON.parse(JSON.parse(str.data).location);
             console.log("Json is ready");
             const curloc = await getLoc();
-            console.log(curloc);
-            console.log(locObj);
-            if (Math.abs(curloc.latitude-locObj.latitude)<0.009 && Math.abs(curloc.longitude-locObj.longitude)<0.009){
+            console.log(curloc.latitude-locObj.latitude);
+            console.log(locObj.longitude-locObj.longitude);
+            if ((Math.abs(curloc.latitude-locObj.latitude)<0.05) && (Math.abs(curloc.longitude-locObj.longitude)<0.05)){
                 console.log("true");
                 onVer("/tick.svg");
             } else {

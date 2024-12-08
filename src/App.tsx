@@ -37,6 +37,7 @@ import FaceChecker from './pages/Checkers';
 import Login from './pages/login';
 import { useState } from 'react';
 //import checkLocation from './pages/loc';
+import EmployeeForm from './pages/addEmployee';
 
 setupIonicReact();
 
@@ -51,6 +52,9 @@ const App: React.FC = () => {
           <IonRouterOutlet id="main">
              <Route exact path="/Checkers">
              <FaceChecker/>
+             </Route>
+             <Route exact path='/addEmployee'>
+              <EmployeeForm/>
              </Route>
              <Redirect exact from="/" to="/Checkers" />
           </IonRouterOutlet>

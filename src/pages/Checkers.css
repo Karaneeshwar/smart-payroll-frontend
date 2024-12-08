@@ -15,3 +15,8 @@
 ion-button {
     width: 100%;
 }
+
+#res {
+    top:50%;
+    left:50%;
+}
