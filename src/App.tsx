@@ -37,7 +37,7 @@ import FaceChecker from './pages/Checkers';
 import Login from './pages/login';
 import { useState } from 'react';
 //import checkLocation from './pages/loc';
-import EmployeeForm from './pages/addEmployee';
+import EmployeeForm from '../../admin-front/src/pages/addEmployee';
 
 setupIonicReact();
 

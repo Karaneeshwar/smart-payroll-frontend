@@ -1,6 +1,4 @@
 import { IonIcon, IonButton, IonPage, IonHeader, IonTitle, IonContent, IonToolbar, IonCard, IonCardTitle, IonCardContent, IonCardHeader, IonButtons, IonMenuButton, IonInput, IonLabel, IonText, IonList, IonItem, IonToast } from "@ionic/react";
-import { defineCustomElements } from '@ionic/pwa-elements/loader';
-import './Checkers.css'
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
 import '@ionic/react/css/structure.css';
@@ -12,10 +10,9 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 import '@ionic/react/css/palettes/dark.system.css';
-import CheckLocation from "./loc";
-import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import axios from "axios";
 import React, { useState } from "react";
+import './login.css'
 
 interface f {
     empid:string,
@@ -26,6 +23,7 @@ interface f {
 }
 
 const EmployeeForm: React.FC = () => {
+    const [isAdded, setIsAdded] = useState(false);
     const [form, setForm] = useState<f>({ empid:"", name:"", locid:"", pwd:"", file:null });
 
     const handleFileChange:React.ChangeEventHandler<HTMLInputElement> = (event:React.ChangeEvent<HTMLInputElement>) => {
@@ -52,6 +50,7 @@ const EmployeeForm: React.FC = () => {
             console.log("Results:"+res.data);
             if (res.data==="Yes"){
                 console.log("Works!!!!");
+                setIsAdded(true);
             } else {
                 console.log("Go to node log");
             }
@@ -67,11 +66,11 @@ const EmployeeForm: React.FC = () => {
                     <IonButtons slot="start">
                         <IonMenuButton />
                     </IonButtons>
-                    <IonTitle>Login</IonTitle>
+                    <IonTitle>Employee Addition</IonTitle>
                 </IonToolbar>
             </IonHeader>
             <IonContent >
-                <form onSubmit={submitForm} method="POST">
+                {(!isAdded)?<form onSubmit={submitForm} method="POST">
                     <IonList>
                     <IonItem className="input">
                             <IonInput 
@@ -155,6 +154,7 @@ const EmployeeForm: React.FC = () => {
                     </IonList>
                     <IonButton type="submit"> Submit </IonButton>
                 </form>
+                :<IonIcon src="/tick.svg" size="large"></IonIcon>}
             </IonContent>
         </IonPage>      
     );

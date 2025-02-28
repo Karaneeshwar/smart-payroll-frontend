@@ -1,7 +1,5 @@
 import { useState, CSSProperties, ReactEventHandler } from "react";
-import { BarLoader } from "react-spinners"; 
 import { IonIcon, IonButton, IonPage, IonHeader, IonTitle, IonContent, IonToolbar, IonCard, IonCardTitle, IonCardContent, IonCardHeader, IonButtons, IonMenuButton, IonInput, IonLabel, IonText, IonList, IonItem, IonToast } from "@ionic/react";
-import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
 import '@ionic/react/css/structure.css';
@@ -15,7 +13,7 @@ import '@ionic/react/css/display.css';
 import '@ionic/react/css/palettes/dark.system.css';
 import axios from "axios";
 import './login.css';
-import { Filesystem, Directory, Encoding } from "@capacitor/filesystem"
+import { Filesystem, Directory } from "@capacitor/filesystem"
 import { saveJson } from "./loc";
 
 interface q {
@@ -81,7 +79,7 @@ const Login: React.FC<q> = ({ setIsLogin }) => {
                     <IonTitle>Login</IonTitle>
                 </IonToolbar>
             </IonHeader>
-            <IonContent >
+            <IonContent fullscreen>
                 <form onSubmit={submitForm} method="POST">
                     <IonList>
                         <IonItem className="input">
